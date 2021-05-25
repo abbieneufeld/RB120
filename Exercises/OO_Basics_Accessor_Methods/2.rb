@@ -1,9 +1,21 @@
-class Person
-   attr_accessor :name
-   attr_writer :phone_number
+class Vehicle
+  attr_reader :year
+
+  def initialize(year)
+    @year = year
+  end
 end
 
-person1 = Person.new
-person1.name = 'Jessica'
-person1.phone_number = '0123456789'
-puts person1.name
+class Truck < Vehicle
+  def initialize(year)
+    super
+    start_engine
+  end
+  
+  def start_engine
+    puts 'Ready to go!'
+  end
+end
+
+truck1 = Truck.new(1994)
+puts truck1.year

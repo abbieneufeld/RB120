@@ -1,13 +1,22 @@
-class Person
-  attr_reader :phone_number
+class Vehicle
+  attr_reader :year
 
-  def initialize(number)
-    @phone_number = number
+  def initialize(year)
+    @year = year
   end
 end
 
-person1 = Person.new(1234567899)
-puts person1.phone_number
+class Truck < Vehicle
+  attr_accessor :bed_type
+  def initialize(year, bed_type)
+    super(year)
+    @bed_type = bed_type
+  end
+end
 
-person1.phone_number = 9987654321
-puts person1.phone_number
+class Car < Vehicle
+end
+
+truck1 = Truck.new(1994, 'Short')
+puts truck1.year
+puts truck1.bed_type

@@ -1,19 +1,15 @@
-class Person
-  attr_writer :age
-  
-  protected
-  attr_reader :age
-  
-  public
-  def older_than?(other)
-    age > other.age
+module Towable
+  def tow
+    puts "I can tow a trailer!"
   end
 end
 
-person1 = Person.new
-person1.age = 17
+class Truck
+  include Towable
+end
 
-person2 = Person.new
-person2.age = 26
+class Car
+end
 
-puts person1.older_than?(person2)
+truck1 = Truck.new
+truck1.tow
