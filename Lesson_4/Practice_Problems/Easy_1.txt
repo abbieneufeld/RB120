@@ -1,0 +1,10 @@
+1. The following are all objects in Ruby. You can find out what class they belong  to by using "object".class.
+2. You can include the module Speed. You can check if it works by creating a Car or Truck object and using go fast.
+3. This is done by calling .class on the self object.
+4. Angry_Cat.new
+5. Pizza has an instance variable you can tell by the @ sign.
+6. You can add an attr_accessor to both read and write the instance variable.
+7. the default return value of to_s is the name of an object's class and the encoding id.  You cna check the Ruby documentation.
+8. self refers to the instance of the object.
+9. self refers to the class.
+10. Bag.new("color", "material")

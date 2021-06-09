@@ -1,0 +1,12 @@
+1. case 1: puts hello
+   case 2: erro rno method
+   case 3: error wrong number of agruments
+   case 4: puts Goodbye
+   case 5: no class method error
+2. define a class method under hello called self.Hi.
+3.a=AngryCat.new(4, rupert)
+  b=AngryCat.new(2, fluffy)
+4. define a t0_s method that says "I am a #{@type} cat"
+5. no method for tv.manufacturer and no method for Television.model
+6. we could just use @age +=1 since its an instance vairble that you can read and write to.
+7. return in self.information.

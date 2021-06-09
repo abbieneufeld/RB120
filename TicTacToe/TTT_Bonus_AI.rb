@@ -1,0 +1,376 @@
+require 'pry'
+
+class Board
+  WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
+                  [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
+                  [[1, 5, 9], [3, 5, 7]]
+  def initialize
+    @squares = {}
+    reset
+  end
+
+  def []=(key, marker)
+    @squares[key].marker = marker
+  end
+
+  def unmarked_keys
+    @squares.keys.select { |key| @squares[key].unmarked? }
+  end
+
+  def full?
+    unmarked_keys.empty?
+  end
+
+  def someone_won_round?
+    !!winning_marker
+  end
+
+  def winning_marker
+    WINNING_LINES.each do |line|
+      squares = @squares.values_at(*line)
+      if three_identical_markers(squares)
+        return squares.first.marker
+      end
+    end
+    nil
+  end
+
+  def at_risk_square(player_marker)
+    WINNING_LINES.each do |line|
+      squares = @squares.values_at(*line)
+      if two_identical_markers(squares, player_marker) && one_unmarked_square?(squares)
+        index = squares.find_index(squares.select(&:unmarked?).first)
+        return line[index]
+      end
+    end
+    nil
+  end
+
+  def three_identical_markers(squares)
+    markers = squares.select(&:marked?).collect(&:marker)
+    return false if markers.size != 3
+    markers.min == markers.max
+  end
+
+  def two_identical_markers(squares, player_marker)
+    markers = squares.select(&:marked?).collect(&:marker)
+    return false if markers.size != 2
+    markers.min == markers.max && markers.min == player_marker
+  end
+
+  def one_unmarked_square?(squares)
+    squares.select(&:unmarked?).size == 1
+  end
+
+  def five_available?
+    @squares[5].unmarked?
+  end
+
+  def reset
+    (1..9).each { |key| @squares[key] = Square.new }
+  end
+
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
+  def draw
+    puts "     |     |"
+    puts "  #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}  "
+    puts "     |     |"
+    puts "-----+-----+-----"
+    puts "     |     |"
+    puts "  #{@squares[4]}  |  #{@squares[5]}  |  #{@squares[6]}  "
+    puts "     |     |"
+    puts "-----+-----+-----"
+    puts "     |     |"
+    puts "  #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}  "
+    puts "     |     |"
+  end
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/MethodLength
+end
+
+class Square
+  INITIAL_MARKER = " "
+
+  attr_accessor :marker
+
+  def initialize(marker = INITIAL_MARKER)
+    @marker = marker
+  end
+
+  def to_s
+    @marker
+  end
+
+  def unmarked?
+    marker == INITIAL_MARKER
+  end
+
+  def marked?
+    marker != INITIAL_MARKER
+  end
+end
+
+class Player
+  attr_accessor :wins, :marker, :name
+
+  def initialize
+    @wins = 0
+  end
+
+  def increment_score
+    @wins += 1
+  end
+
+  def reset_score
+    @wins = 0
+  end
+end
+
+class TTTGame
+  VALID_MARKERS = ["X", "O"]
+  attr_reader :board, :human, :computer
+  attr_accessor :current_marker
+
+  private
+
+  def initialize
+    @board = Board.new
+    @human = Player.new
+    @computer = Player.new
+    @current_marker = nil
+  end
+
+  def current_player_moves
+    if human_turn?
+      human_moves
+      @current_marker = computer.marker
+    else
+      computer_moves
+      @current_marker = human.marker
+    end
+  end
+
+  def human_turn?
+    @current_marker == human.marker
+  end
+
+  def clear
+    system 'clear'
+  end
+
+  def display_welcome_message
+    puts "Welcome to Tic Tac Toe! First player to 5 points wins the game!"
+    puts ""
+  end
+
+  def display_goodbye_message
+    puts "Thanks for playing Tic Tac Toe! Goodbye!"
+  end
+
+  def display_board
+    puts "#{human.name} is an #{human.marker}. #{computer.name} is an #{computer.marker}."
+    puts ""
+    board.draw
+    puts ""
+  end
+
+  def clear_screen_and_display_board
+    clear
+    display_board
+  end
+
+  def joinor(arr, delimiter=', ', word='or')
+    case arr.size
+    when 0 then ''
+    when 1 then arr.first
+    when 2 then arr.join(" #{word} ")
+    else
+      arr[-1] = "#{word} #{arr.last}"
+      arr.join(delimiter)
+    end
+  end
+
+  def human_moves
+    puts "Choose a square (#{joinor(board.unmarked_keys)})"
+    square = nil
+    loop do
+      square = gets.chomp.to_i
+      break if board.unmarked_keys.include?(square)
+      puts "Sorry, that's not a valid choice."
+    end
+    board[square] = human.marker
+  end
+
+  def computer_moves
+    if board.at_risk_square(computer.marker)
+      then board[board.at_risk_square(computer.marker)] = computer.marker
+    elsif board.at_risk_square(human.marker)
+      then board[board.at_risk_square(human.marker)] = computer.marker
+    elsif board.five_available?
+      then board[5] = computer.marker
+    else
+      board[board.unmarked_keys.sample] = computer.marker
+    end
+  end
+
+  def display_result_and_update_score
+    clear_screen_and_display_board
+    case board.winning_marker
+    when human.marker
+      puts "You won the round!"
+      human.increment_score
+    when computer.marker
+      puts "Computer won the round!"
+      computer.increment_score
+    else
+      puts "This round is a tie."
+    end
+    puts "#{human.name} has #{human.wins} point(s). #{computer.name} has #{computer.wins} point(s)."
+  end
+
+  def play_another_round?
+    answer = nil
+    loop do
+      puts "Would you like to play another round? (y/n)"
+      answer = gets.chomp.downcase
+      break if %w(y n).include? answer
+      puts "Sorry, must be y or n"
+    end
+
+    answer == "y"
+  end
+
+  def play_another_game?
+    answer = nil
+    loop do
+      puts "Would you like to play another game? (y/n)"
+      answer = gets.chomp.downcase
+      break if %w(y n).include? answer
+      puts "Sorry, must be y or n"
+    end
+
+    answer == "y"
+  end
+
+  def reset
+    board.reset
+    clear
+  end
+
+  def display_play_again_message
+    puts "Let's play again!"
+    puts ""
+  end
+
+  def player_move
+    loop do
+      current_player_moves
+      break if board.someone_won_round? || board.full?
+      clear_screen_and_display_board if human_turn?
+    end
+  end
+
+  def game_winner?
+    human.wins == 5 || computer.wins == 5
+  end
+
+  def display_winner
+    if human.wins == 5
+      then puts "#{human.name} won the game."
+    elsif computer.wins == 5
+      puts "#{computer.name} won the game."
+    else
+      puts "No one has 5 points yet, therefore no one wins the game."
+    end
+  end
+
+  def human_marker_choice
+    answer = nil
+    loop do
+      puts "What would you like your marker to be 'X' or 'O'?"
+      answer = gets.chomp.upcase
+      break if VALID_MARKERS.include?(answer)
+      puts "Sorry, that is not a valid choice."
+    end
+    human.marker = answer
+    if human.marker == "X"
+      computer.marker = "O"
+    elsif human.marker == "O"
+      computer.marker = "X"
+    end
+  end
+
+  def human_name_choice
+    answer = nil
+    loop do
+      puts "What would you like your game name to be?"
+      answer = gets.chomp.capitalize
+      break if answer.length >= 1
+      puts "Sorry, name must be at least 1 character."
+    end
+    human.name = answer
+  end
+
+  def set_computer_name
+    computer.name = "Computer"
+  end
+
+  def set_first_player
+    answer = nil
+    loop do
+      puts "Who should go first?"
+      puts "Press 1 for #{human.name}, 2 for #{computer.name} or 3 to choose at random."
+      answer = gets.chomp
+      break if %w(1 2 3).include?(answer)
+      puts "Sorry, that is not a vaid choice."
+    end
+    case answer
+    when "1"
+      @current_marker = human.marker
+    when "2"
+      @current_marker = computer.marker
+    when "3"
+      @current_marker = [human.marker, computer.marker].sample
+    end
+  end
+
+  def main_game
+    loop do
+      set_first_player
+      display_board
+      player_move
+      display_result_and_update_score
+      break if game_winner?
+      break unless play_another_round?
+      reset
+      display_play_again_message
+    end
+  end
+
+  def initialize_game
+    clear
+    display_welcome_message
+    human_marker_choice
+    human_name_choice
+    set_computer_name
+  end
+
+  public
+
+  def play
+    initialize_game
+    loop do
+      reset
+      human.reset_score
+      computer.reset_score
+      main_game
+      display_winner
+      break unless play_another_game?
+    end
+    display_goodbye_message
+  end
+end
+
+game = TTTGame.new
+game.play

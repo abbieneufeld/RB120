@@ -1,0 +1,39 @@
+1. Ben is right because he added an attr_reader for the instance variable.
+2. quantiity must be referenced using @quanitty 
+3. no, but then protectoin sbuilt into update_quantity_method cna be circumvented
+4. 
+  class Greeting
+    def greet(string)
+      puts string
+    end
+  end
+  
+  class Hello < Greeting
+    def hi
+      greet("hello"
+    end
+  end
+  
+  class Goodbye < Greeting
+    def bye
+      greet("Goodbye")
+    end
+  end
+  
+5. class KrispyKreme
+    attr_accessor :filling_type, :glazing
+   def initialize(filling_type, glazing)
+    @filling_type = filling_type
+    @glazing = glazing
+  end
+end
+  def to_s
+    if  self.filling_type = nil 
+      then "Plain with #{self.glazing}"
+    else
+      "#{self.filling_type} with #{self.glazing}
+      
+      
+  6. no diffrenc the result only in wyw each accomplishes task
+  
+  7. call light_status status.

@@ -1,0 +1,10 @@
+1. You will + a random choice of one the three array options.
+2. You will + a random choice of the three array options defined under RoadTrip.
+3. You can call object.ancestors. Lookup chain for Orange is Orange, Taste, Object, Kernel, BasicObject,HotSauce is same but repalce Orange with HotSauce.
+4. you can add an attr_acesssor.
+5. there is a local variable, instance variable, and class variable. You can telel based on how many @ symbols preceed the variable.
+6. self.manufacturer is a class method. You can tell because it's preceed by self.
+7.@@cats_count keeps track of how many instances of the object have been injitialized. you could initialize a couple cats to test your thoery and then run class.cats_count to see if the number matches.
+8. You can add <Game .
+9. The play method in the Bingo class woud override the play method in the Game class.
+10. Creating games, creating programs, modeling real-life situations. etc.
